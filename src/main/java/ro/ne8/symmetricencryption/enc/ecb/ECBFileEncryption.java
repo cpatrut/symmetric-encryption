@@ -15,7 +15,7 @@ public class ECBFileEncryption {
     private static final String ENCRYPTION_MODE = "ECB";
     private static final String ENCRYPTION_PADDING = "PKCS5Padding";
 
-    public void encrypt(final String inputFile, final String outputFile, final String key, final String algorithm) throws IOException, ShortBufferException, BadPaddingException, IllegalBlockSizeException {
+    public void encrypt(final String inputFile, final String outputFile, final String key, final String algorithm) throws IOException, ShortBufferException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         //setup files
         final FileInputStream fileInputStream = tryGetFileInputStream(inputFile);
         final FileOutputStream fileOutputStream = tryGetOuputFileSteam(outputFile);
@@ -24,9 +24,9 @@ public class ECBFileEncryption {
         System.out.println("what a message");
         //setup cipher
         final String cipherSetup = algorithm + "/" + ENCRYPTION_MODE + "/" + ENCRYPTION_PADDING;
-        final Cipher cipher = tryToGetCipherInstance(cipherSetup);
+        final Cipher cipher = Cipher.getInstance(cipherSetup);
         final Key keySpec = new SecretKeySpec(key.getBytes(), algorithm);
-        tryToInitCipher(cipher, keySpec);
+        cipher.init(Cipher.ENCRYPT_MODE,keySpec);
 
         // setup reading
         final byte[] clearTextBuffer = new byte[cipher.getBlockSize()];
@@ -52,27 +52,6 @@ public class ECBFileEncryption {
         fileOutputStream.close();
     }
 
-    private void tryToInitCipher(final Cipher cipher, final Key key) {
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-        } catch (final InvalidKeyException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private Cipher tryToGetCipherInstance(final String cipherSetup) {
-        try {
-            return Cipher.getInstance(cipherSetup);
-        } catch (final NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-
-        } catch (final NoSuchPaddingException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     private FileInputStream tryGetFileInputStream(final String inputFile) {
         try {

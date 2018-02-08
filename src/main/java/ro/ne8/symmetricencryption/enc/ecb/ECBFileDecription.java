@@ -14,7 +14,7 @@ public class ECBFileDecription {
     private static final String ENCRYPTION_MODE = "ECB";
     private static final String ENCRYPTION_PADDING = "PKCS5Padding";
 
-    public void decrypt(final String fileInput, final String fileOutput, final String key, final String algorithm) throws IOException, ShortBufferException, BadPaddingException, IllegalBlockSizeException {
+    public void decrypt(final String fileInput, final String fileOutput, final String key, final String algorithm) throws IOException, ShortBufferException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         //setupFiles
         final FileInputStream fileInputStream = tryGetFileInputStream(fileInput);
@@ -22,10 +22,9 @@ public class ECBFileDecription {
 
         //Setup descryption
         final String cipherSetup = algorithm + "/" + ENCRYPTION_MODE + "/" + ENCRYPTION_PADDING;
-        final Cipher cipher = tryToGetCipherInstance(cipherSetup);
+        final Cipher cipher = Cipher.getInstance(cipherSetup);
         final Key secretKeySpec = new SecretKeySpec(key.getBytes(), algorithm);
-        tryToInitCipher(cipher, secretKeySpec);
-
+        cipher.init(Cipher.DECRYPT_MODE,secretKeySpec);
 
         //setup file ops
         final byte[] cipherTextBuffer = new byte[cipher.getBlockSize()];
